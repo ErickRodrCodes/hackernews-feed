@@ -1,0 +1,15 @@
+.modal-navigation{
+    position: relative;
+    width: 100%;
+    margin-top:10px;
+
+    .back{
+        position: absolute;
+        left:0;   
+    }
+
+    .next{
+        position: absolute;
+        right:0;
+    }
+}
