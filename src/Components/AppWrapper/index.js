@@ -5,14 +5,15 @@ import ModalWindow from '../ModalWindow'
 import ApplicationContext from '../ApplicationContext'
 
 const AppWrapper = () => {
-    const {isModalOpen} = useContext(ApplicationContext)
+    const { isModalOpen } = useContext(ApplicationContext)
+    const {defaultList} = useContext(ApplicationContext)
     return (
         <>
             {isModalOpen
                 ? (<ModalWindow />)
                 : (null) }
             
-            <Front />
+            <Front articlesIds={defaultList} />
         </>
     )
 }

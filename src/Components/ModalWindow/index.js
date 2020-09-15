@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState, use } from 'react'
 import ModalStory from '../ModalStory'
 import PropTypes from 'prop-types'
 import './index.scss'

@@ -7,10 +7,12 @@ import './App.css';
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [backupList, setBackupList] = useState({})
-  const [unUsedList, setUnusedList] = useState({})
+  const [backupList, setBackupList] = useState([])
+  const [unUsedList, setUnusedList] = useState([])
   const [defaultList, setDefaultList] = useState(Array(15).fill(null))
-  
+  const [activeStoryId, setActiveStoryId] = useState(0)
+  const [mapComments, setMapComments] = useState(new Map())
+  const [storyInfo, setStoryInfo] = useState(new Map())
   useEffect(() => {
     setListOfTopStories()
       .then(data => {
@@ -38,7 +40,13 @@ function App() {
         backupList,
         setBackupList,
         unUsedList,
-        setUnusedList
+        setUnusedList,
+        activeStoryId,
+        setActiveStoryId,
+        mapComments,
+        setMapComments,
+        storyInfo,
+        setStoryInfo
       }}>
         <AppWrapper />
       </ApplicationProvider>

@@ -5,48 +5,93 @@ import './index.scss'
 import loading from './loading.svg'
 import fetch from 'node-fetch'
 const FrontStory = (props) => {
-  const {title,paragraph, storyId, storyIsRead, storyIndex} = props
+  const {title,paragraph, storyId, setStory, storyIsRead, storyIndex} = props
   const [storyRead, setStoryRead] = useState(storyIsRead)
-  const {setIsModalOpen, defaultList } = useContext(ApplicationContext)
+  const [totalComments, setTotalComments] = useState(0)
+  const [loadedData, setLoadedData] = useState(false)
+  const [currentIdStory, setCurrentIdStory] = useState(0)
+  const {
+    setIsModalOpen,
+    defaultList,
+    setDefaultList,
+    mapComments,
+    setMapComments,
+    setActiveStoryId,
+    backupList,
+    setBackupList,
+    setStoryInfo,
+    storyInfo,
+  } = useContext(ApplicationContext)
   const [storyData, setStoryData] = useState(null)
-  
+ 
 
-  // ifdefaultList[storyIndex]
+
   useEffect(() => {
     if (!Boolean(storyData)) {
-      const fetchStory = async () => {
-        if (storyId !== null) {
-          const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json?print=pretty`)
-          const json = await res.json()
-          if (json.type === 'story') {
-            setStoryData(json)
-            return Promise.resolve(json)
-          } else {
-            //run a dequeue from the list of arrays, and replace the storyId on the requested index.
+      const fetchStory = async (storyToUse) => {
+          if (!loadedData) {
+            const res = await fetch(`https://hacker-news.firebaseio.com/v0/item/${storyToUse}.json?print=pretty`)
+            const json = await res.json()
+            if (json && json.type === 'story') {
+              let listOfComments = mapComments;
+              let listOfDataStory = storyInfo;
+              let listOfKids = Boolean(json.kids) ? json.kids : []
+              setCurrentIdStory(json.id)
+              setTotalComments(listOfKids.length)
+              setStoryData(json)
+              listOfDataStory.set(json.id, json)
+              setStoryInfo(listOfDataStory)
+              listOfComments.set(json.id, listOfKids)
+              setMapComments(listOfComments)
+              setLoadedData(true)
+              return Promise.resolve(json)
+            } else {
+              console.log({NotAStory:json})
+              if (backupList.length) {
+                // run a dequeue from the list of arrays,
+                // pop from the backup list an item
+                console.log({ previousdefaultList: defaultList })
+                const newStoryId = backupList.shift();
+                console.log({oldStory:storyToUse})
+                console.log({newStoryId})
+                // then switch the value of the non story to this one
+                const idxToReplace = defaultList.indexOf(storyToUse)
+                // replace the storyId on the requested index.
+                defaultList[idxToReplace] = newStoryId
+                setDefaultList(defaultList)
+                console.log({ newDefaultList: defaultList })
+                setBackupList(backupList)
+                fetchStory(newStoryId)   
+              }
+            }
           }
-        }
-        return null
       }
-      fetchStory()
+      if(storyId) fetchStory(storyId)
     }
-  }, [storyId, storyData])
+  }, [storyId, storyData, mapComments, setMapComments, setBackupList, setDefaultList, defaultList, loadedData, backupList, setCurrentIdStory])
 
     // console.log(props)
     const launchStory = (e) => {
       if (Boolean(storyData)){
-        console.log(e.currentTarget.getAttribute('data-story-id'))
+        let storyId = e.currentTarget.getAttribute('data-story-id')
+        storyId = Number(storyId)
         setIsModalOpen(true)
         setStoryRead(true)
+        setActiveStoryId(storyId)
       }
     }
     return (
       <div className={`frontStory ${storyRead ? 'storyRead':''}`}
         onClick={launchStory}
-        data-story-id={storyId}
+        data-story-id={currentIdStory}
       >
-        {Boolean(storyData)
+        {loadedData
           ? (<>
-            <p>{storyData.title} - {storyData.type}</p>
+            <h4>{storyData.title} - {storyData.type}</h4>
+            <div className="footer">
+              <h5>{totalComments} Comment{totalComments === 1 ? (<></>) : (<>s</>)}</h5> 
+              <span>Posted on {new Date(storyData.time*1000).toLocaleString()}</span>
+            </div>
           </>)
           : (
             <>

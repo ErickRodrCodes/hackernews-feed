@@ -4,12 +4,11 @@ import FrontStory from '../FrontStory'
 import ApplicationContext from '../ApplicationContext'
 import './index.scss'
 const Front = (props) => {
-    // const {articlesIds} = props
-    const {defaultList} = useContext(ApplicationContext)
-    console.log({defaultList})
+    const {articlesIds} = props
+    
     return (
         <div className="front">
-            {defaultList.map((item,index) => <FrontStory storyId={item} storyIndex={index} key={`storyId_${index}`}/>)}
+            {articlesIds.map((item,index) => <FrontStory storyId={item} storyIndex={index} key={`storyId_${index}`}/>)}
         </div>
     )
 }
